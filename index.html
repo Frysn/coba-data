@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Viewer Data ESP32</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js"></script>
+</head>
+<body>
+  <h1>Viewer Data ESP32</h1>
+  <div id="data-container"></div>
+
+  <script>
+    // Mengatur klien MQTT
+    var client = new Paho.MQTT.Client("broker.hivemq.com", 8000, "clientId");
+
+    // Mengatur koneksi MQTT
+    client.connect({ onSuccess: onConnect });
+
+    function onConnect() {
+      console.log("Terhubung ke broker");
+      client.subscribe("esp32/sensor_data");
+    }
+
+    // Menangani pesan yang masuk
+    client.onMessageArrived = function(message) {
+      console.log("Pesan diterima: " + message.payloadString);
+      document.getElementById("data-container").innerHTML = message.payloadString;
+    };
+  </script>
+</body>
+</html>
