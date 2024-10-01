@@ -31,6 +31,14 @@
         client.on('error', function (err) {
             console.error('MQTT error:', err);
         });
+
+        client.on('offline', function () {
+            console.log('MQTT client went offline');
+        });
+
+        client.on('reconnect', function () {
+            console.log('MQTT client is reconnecting');
+        });
     </script>
 </body>
 </html>
