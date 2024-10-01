@@ -10,20 +10,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.2.6/mqtt.min.js"></script>
     <script>
         const mqtt_server = "broker.hivemq.com";
-        const client = mqtt.connect(`ws://${mqtt_server}:8000/mqtt`);
+        const client = mqtt.connect(`wss://${mqtt_server}:8000/mqtt`);
 
         client.on('connect', function () {
-            console.log('Connected');
+            console.log('Connected to MQTT broker');
             client.subscribe('esp32/data', function (err) {
                 if (!err) {
-                    console.log('Subscribed to topic');
+                    console.log('Subscribed to topic esp32/data');
+                } else {
+                    console.error('Failed to subscribe:', err);
                 }
             });
         });
 
         client.on('message', function (topic, message) {
-            // message is Buffer
+            console.log(`Message received on topic ${topic}: ${message.toString()}`);
             document.getElementById('data').innerText = message.toString();
+        });
+
+        client.on('error', function (err) {
+            console.error('MQTT error:', err);
         });
     </script>
 </body>
