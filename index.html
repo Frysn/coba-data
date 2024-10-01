@@ -1,44 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>ESP32 Data Viewer</title>
-</head>
-<body>
-    <h1>Data from ESP32</h1>
-    <div id="data"></div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.2.6/mqtt.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 Data Monitoring</title>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
     <script>
-        const mqtt_server = "broker.hivemq.com";
-        const client = mqtt.connect(`wss://${mqtt_server}:8000/mqtt`);
+        // Firebase configuration
+        var firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "your-auth-domain",
+            databaseURL: "https://your-project-id.firebaseio.com",
+            projectId: "your-project-id",
+            storageBucket: "your-storage-bucket",
+            messagingSenderId: "your-messaging-sender-id",
+            appId: "your-app-id"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
 
-        client.on('connect', function () {
-            console.log('Connected to MQTT broker');
-            client.subscribe('esp32/data', function (err) {
-                if (!err) {
-                    console.log('Subscribed to topic esp32/data');
-                } else {
-                    console.error('Failed to subscribe:', err);
-                }
+        function getData() {
+            var temperatureRef = firebase.database().ref('temperature');
+            var humidityRef = firebase.database().ref('humidity');
+
+            temperatureRef.on('value', (snapshot) => {
+                const temperature = snapshot.val();
+                document.getElementById('temperature').innerText = temperature + " °C";
             });
-        });
 
-        client.on('message', function (topic, message) {
-            console.log(`Message received on topic ${topic}: ${message.toString()}`);
-            document.getElementById('data').innerText = message.toString();
-        });
-
-        client.on('error', function (err) {
-            console.error('MQTT error:', err);
-        });
-
-        client.on('offline', function () {
-            console.log('MQTT client went offline');
-        });
-
-        client.on('reconnect', function () {
-            console.log('MQTT client is reconnecting');
-        });
+            humidityRef.on('value', (snapshot) => {
+                const humidity = snapshot.val();
+                document.getElementById('humidity').innerText = humidity + " %";
+            });
+        }
     </script>
-</body>
-</html>
+</head>
+<body
