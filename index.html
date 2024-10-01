@@ -1,30 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Viewer Data ESP32</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js"></script>
+    <title>ESP32 Data Viewer</title>
 </head>
 <body>
-  <h1>Viewer Data ESP32</h1>
-  <div id="data-container"></div>
+    <h1>Data from ESP32</h1>
+    <div id="data"></div>
 
-  <script>
-    // Mengatur klien MQTT
-    var client = new Paho.MQTT.Client("broker.hivemq.com", 8000, "clientId");
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.2.6/mqtt.min.js"></script>
+    <script>
+        const mqtt_server = "broker.hivemq.com";
+        const client = mqtt.connect(`ws://${mqtt_server}:8000/mqtt`);
 
-    // Mengatur koneksi MQTT
-    client.connect({ onSuccess: onConnect });
+        client.on('connect', function () {
+            console.log('Connected');
+            client.subscribe('esp32/data', function (err) {
+                if (!err) {
+                    console.log('Subscribed to topic');
+                }
+            });
+        });
 
-    function onConnect() {
-      console.log("Terhubung ke broker");
-      client.subscribe("esp32/output");
-    }
-
-    // Menangani pesan yang masuk
-    client.onMessageArrived = function(message) {
-      console.log("Pesan diterima: " + message.payloadString);
-      document.getElementById("data-container").innerHTML = message.payloadString;
-    };
-  </script>
+        client.on('message', function (topic, message) {
+            // message is Buffer
+            document.getElementById('data').innerText = message.toString();
+        });
+    </script>
 </body>
 </html>
